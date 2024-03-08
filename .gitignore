@@ -1,0 +1,8 @@
+.vs/
+*.vcxproj*
+EditorTest.cpp
+Preview.txt
+out/
+x64/
+*.json
+*.sln
