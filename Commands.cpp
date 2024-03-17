@@ -1,5 +1,6 @@
 #include <string>
 #include "Editor.h"
+#include "Commands.h"
 
 DeleteCommand::DeleteCommand(const std::string& text, int finish)
 {
@@ -20,7 +21,13 @@ DeleteCommand::DeleteCommand(const std::string& text, int finish)
 
 void DeleteCommand::execute(Message& message)
 {
+	previousMessage = message;
 	message.Delete(numStart, numFinish);
+}
+
+void DeleteCommand::undo(Message& message)
+{
+	message = previousMessage;
 }
 
 ChangeCommand::ChangeCommand(const std::string& text, int finish)
@@ -45,7 +52,17 @@ ChangeCommand::ChangeCommand(const std::string& text, int finish)
 
 void ChangeCommand::execute(Message& message)
 {
-	message.Change(numStart, numFinish, textToWrite);
+	previousText = message.Change(numStart, numFinish, textToWrite);
+}
+
+void ChangeCommand::undo(Message& message)
+{
+	Message temp;
+	for (std::map<int, std::string>::iterator i = previousText.begin(); i != previousText.end(); ++i)
+	{
+		temp.Add(i->first, i->second);
+	}
+	message = temp;
 }
 
 InsertCommand::InsertCommand(const std::string& text)
@@ -58,12 +75,22 @@ InsertCommand::InsertCommand(const std::string& text)
 	pos = text.find('"') + 1;
 	finish = text.find('"', pos);
 	std::string textToWrite = text.substr(pos, finish - pos);
-	std::map<int, std::string> mapToWrite = FromTextToMap(textToWrite, num + 1);
+	mapToWrite = FromTextToMap(textToWrite, num + 1);
 }
 
 void InsertCommand::execute(Message& message)
 {
-	message.Insert(mapToWrite, num);
+	previousText = message.Insert(mapToWrite, num);
+}
+
+void InsertCommand::undo(Message& message)
+{
+	Message temp;
+	for (std::map<int, std::string>::iterator i = previousText.begin(); i != previousText.end(); ++i)
+	{
+		temp.Add(i->first, i->second);
+	}
+	message = temp;
 }
 
 ReplaceCommand::ReplaceCommand(const std::string& text)
@@ -89,5 +116,23 @@ ReplaceCommand::ReplaceCommand(const std::string& text)
 
 void ReplaceCommand::execute(Message& message)
 {
-	message.Replace(numStart, numFinish, textToFind, textToWrite);
+	previousText = message.Replace(numStart, numFinish, textToFind, textToWrite);
 }
+
+void ReplaceCommand::undo(Message& message)
+{
+	Message temp;
+	for (std::map<int, std::string>::iterator i = previousText.begin(); i != previousText.end(); ++i)
+	{
+		temp.Add(i->first, i->second);
+	}
+	message = temp;
+}
+
+void UndoCommand::execute(Message& message)
+{
+	previousCommand->undo(message);
+}
+
+void UndoCommand::undo(Message& message)
+{}

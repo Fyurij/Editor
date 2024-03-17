@@ -2,8 +2,6 @@
 #include <optional>
 #include <map>
 #include <string>
-#include "Commands.h"
-#include "Editor.h"
 
 class Message
 {
@@ -12,9 +10,10 @@ private:
 public:
 	void Add(int num, std::string& message);
 	void Delete(std::optional<int> numStart, std::optional<int> numFinish);
-	void Change(std::optional<int> numStart, std::optional<int> numFinish, std::string& text);
-	void Insert(std::map<int, std::string>& mapToWrite, int num);
-	void Replace(std::optional<int> numStart, std::optional<int> numFinish, std::string& textToFind, std::string& textToWrite);
+	std::map<int, std::string> Change(std::optional<int> numStart, std::optional<int> numFinish, std::string& text);
+	std::map<int, std::string> Insert(std::map<int, std::string>& mapToWrite, int num);
+	std::map<int, std::string> Replace(std::optional<int> numStart, std::optional<int> numFinish, std::string& textToFind, std::string& textToWrite);
 	const std::map<int, std::string>& Output();
 	void Undo();
 };
+std::map<int, std::string> FromTextToMap(std::string& message, int numStart);

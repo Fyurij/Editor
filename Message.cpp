@@ -54,8 +54,9 @@ std::map<int, std::string> FromTextToMap(std::string& message, int numStart)
 	return mapToWrite;
 }
 
-void Message::Insert(std::map<int, std::string>& mapToWrite, int num)
+std::map<int, std::string> Message::Insert(std::map<int, std::string>& mapToWrite, int num)
 {
+	std::map<int, std::string> tempMessage = text;
 	int size = text.size();
 	std::map<int, std::string> temp = text;
 	for (int i = num + 1; i <= size - 1; ++i)
@@ -68,10 +69,12 @@ void Message::Insert(std::map<int, std::string>& mapToWrite, int num)
 		temp[i + num] = mapToWrite[i + num];
 	}
 	text = temp;
+	return tempMessage;
 }
 
-void Message::Change(std::optional<int> numStart, std::optional<int> numFinish, std::string& message)
+std::map<int, std::string> Message::Change(std::optional<int> numStart, std::optional<int> numFinish, std::string& message)
 {
+	std::map<int, std::string> tempMessage = text;
 	int start = 0;
 	int finish = text.size();
 	if (numStart.has_value())
@@ -102,10 +105,12 @@ void Message::Change(std::optional<int> numStart, std::optional<int> numFinish, 
 		}
 		Insert(tempMap, start + min - 1);
 	}
+	return tempMessage;
 }
 
-void Message::Replace(std::optional<int> numStart, std::optional<int> numFinish, std::string& textToFind, std::string& textToWrite)
+std::map<int, std::string> Message::Replace(std::optional<int> numStart, std::optional<int> numFinish, std::string& textToFind, std::string& textToWrite)
 {
+	std::map<int, std::string> tempMessage = text;
 	int start = 0;
 	int finish = text.size();
 	if (numStart.has_value())
@@ -130,6 +135,7 @@ void Message::Replace(std::optional<int> numStart, std::optional<int> numFinish,
 			i->second.insert(pos, textToWrite);
 		}
 	}
+	return tempMessage;
 }
 
 const std::map<int, std::string>& Message::Output()

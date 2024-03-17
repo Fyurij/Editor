@@ -12,13 +12,13 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(Editor
 Editor.cpp
-Message.cpp
 Commands.cpp
+Message.cpp
 main.cpp)
 
 add_executable(EditorTest
 EditorTest.cpp
-Editor.cpp)
+Message.cpp)
 
 target_link_libraries(
     EditorTest PRIVATE

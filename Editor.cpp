@@ -5,6 +5,7 @@
 #include <map>
 #include <optional>
 #include <vector>
+#include <memory>
 #include "Editor.h"
 #include "Commands.h"
 #include "Message.h"
@@ -19,7 +20,7 @@ int FindNumber(const std::string& text, int& pos)
 	return numStart;
 }
 
-void WorkWithCommands(std::vector<ICommand*>& commands, Message& message)
+void WorkWithCommands(std::vector<std::unique_ptr<ICommand>>& commands, Message& message)
 {
 	for (int i = 0; i < commands.size(); ++i)
 	{
@@ -35,7 +36,7 @@ void WorkWithRecipe(const std::string& name, Message& message)
 		throw std::runtime_error("Can't open file");
 	}
 	std::string text;
-	std::vector<ICommand*> commands;
+	std::vector<std::unique_ptr<ICommand>> commands;
 	while (std::getline(File, text))
 	{
 		int pos = 0;
@@ -43,35 +44,28 @@ void WorkWithRecipe(const std::string& name, Message& message)
 		std::string command = text.substr(pos, finish);
 		if (command == "delete")
 		{
-			ICommand* deleteCommand = new DeleteCommand(text, finish);
-			commands.push_back(deleteCommand);
-			//DeleteCommand deleteCommand(text, finish);
-			//deleteCommand.execute(message);
+			auto deleteCommand = std::make_unique<DeleteCommand>(text, finish); //std::unique_ptr<ICommand> deleteCommand(new DeleteCommand(text, finish));
+			commands.push_back(std::move(deleteCommand));
 		}
 		else if (command == "change")
 		{
-			ICommand* changeCommand = new ChangeCommand(text, finish);
-			commands.push_back(changeCommand);
-			//ChangeCommand changeCommand(text, finish);
-			//changeCommand.execute(message);
+			std::unique_ptr<ICommand> changeCommand(new ChangeCommand(text, finish));
+			commands.push_back(std::move(changeCommand));
 		}
 		else if (command == "insert")
 		{
-			ICommand* insertCommand = new InsertCommand(text);
-			commands.push_back(insertCommand);
-			//InsertCommand insertCommand(text);
-			//insertCommand.execute(message);
+			std::unique_ptr<ICommand> insertCommand(new InsertCommand(text));
+			commands.push_back(std::move(insertCommand));
 		}
 		else if (command == "replace")
 		{
-			ICommand* replaceCommand = new ReplaceCommand(text);
-			commands.push_back(replaceCommand);
-			//ReplaceCommand replaceCommand(text);
-			//replaceCommand.execute(message);
+			std::unique_ptr<ICommand> replaceCommand(new ReplaceCommand(text));
+			commands.push_back(std::move(replaceCommand));
 		}
 		else if (command == "undo")
 		{
-
+			std::unique_ptr<ICommand> undoCommand(new UndoCommand(commands.back().get())); // ...commands[commands.size() - 1].get()
+			commands.push_back(std::move(undoCommand));
 		}
 		else
 		{

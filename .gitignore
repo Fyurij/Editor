@@ -1,6 +1,5 @@
 .vs/
 *.vcxproj*
-EditorTest.cpp
 Preview.txt
 out/
 x64/
